@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="th">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="บีบอัดภาพและ PDF พร้อมรวม PDF หลายไฟล์เป็นไฟล์เดียวในเครื่อง">
+  <title>Lightly — ลดขนาดไฟล์ออนไลน์</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+  <header class="header"><a href="./" class="brand" aria-label="Lightly หน้าหลัก"><span class="brand-icon">↘</span>
+      lightly<span class="brand-dot">.</span></a>
+    <nav class="header-nav" aria-label="เมนูหลัก"><a href="#tools">เครื่องมือ</a><a
+        href="#how-it-works">ทำงานอย่างไร</a></nav><span class="header-note"><span class="status-dot"></span></span>
+  </header>
+  <main>
+    <section class="intro">
+      <div class="intro-copy"><span class="eyebrow"><span class="status-dot"></span> A LITTLE LIGHTER. A LOT
+          EASIER.</span>
+        <h1>ไฟล์เล็กลง<span>งานก็คล่องขึ้น.</span></h1>
+        <p>พื้นที่เล็ก ๆ ที่ช่วยให้งานไฟล์เป็นเรื่องง่าย<br>บีบอัดภาพ ลดขนาด PDF หรือรวมเอกสาร จบในที่เดียว</p>
+        <div class="tags"><span><span aria-hidden="true">✓</span> ใช้ฟรี ไม่ต้องสมัคร</span><span><span
+              aria-hidden="true">◈</span> ไฟล์อยู่ในเครื่องคุณ</span></div>
+        <div class="format-tags" aria-label="ชนิดไฟล์ที่รองรับ">
+          <span>JPG</span><span>PNG</span><span>WEBP</span><span>PDF</span><span class="format-caption">Small files. Big
+            possibilities.</span></div>
+      </div>
+      <div class="hero-art" aria-hidden="true">
+        <div class="art-orbit orbit-one"></div>
+        <div class="art-orbit orbit-two"></div>
+        <div class="art-spark spark-one">✳</div>
+        <div class="art-paper paper-back"><span class="paper-label">LESS IS MORE</span></div>
+        <div class="art-paper paper-front">
+          <div class="paper-top"><span class="paper-mark">↗</span><span>YOUR NEXT<br>BIG IDEA.</span></div>
+          <div class="paper-lines"><i></i><i></i><i></i></div><span class="paper-type">PDF <span>↘</span></span>
+        </div>
+        <div class="art-file"><span class="art-file-icon">▧</span>
+          <div><strong>A little lighter.webp</strong><span>พร้อมสำหรับก้าวต่อไป</span></div><span
+            class="art-check">✓</span>
+        </div>
+        <div class="art-sticker">Keep the quality.<br><strong>Lose the weight.</strong><span>↘</span></div><span
+          class="art-caption">MADE FOR YOUR EVERYDAY FILES</span>
+      </div>
+    </section>
+    <div class="tools-heading" id="tools">
+      <div><span class="eyebrow">THE WORKSPACE</span>
+        <h2>วันนี้ ให้เราช่วยอะไรดี?</h2>
+      </div>
+      <nav class="tool-switch" aria-label="เลือกเครื่องมือ"><button id="compression-tab" type="button"
+          aria-pressed="true" aria-controls="compress-panel"><span aria-hidden="true">↘</span>
+          บีบอัดไฟล์</button><button id="merge-tab" type="button" aria-pressed="false" aria-controls="merge-panel"><span
+            aria-hidden="true">⊞</span> รวม PDF</button></nav>
+    </div>
+    <div id="compress-panel">
+      <section class="workspace" aria-label="เครื่องมือบีบอัดภาพและ PDF">
+        <div class="workspace-heading">
+          <div><span class="step">01 — เลือกไฟล์</span>
+            <h2>เริ่มด้วยไฟล์ของคุณ</h2>
+          </div><span class="pill">JPG · PNG · WEBP · PDF</span>
+        </div>
+        <div id="drop-zone" class="drop-zone">
+          <div class="upload-icon" aria-hidden="true">↥</div>
+          <h3>วางไฟล์ของคุณตรงนี้</h3>
+          <p>ลากภาพหรือ PDF มาวาง แล้วให้เราช่วยต่อ</p><button id="browse" class="button primary"
+            type="button">เลือกไฟล์จากเครื่อง <span aria-hidden="true">＋</span></button><input id="file-input"
+            type="file" accept="image/jpeg,image/png,image/webp,application/pdf,.jpg,.jpeg,.png,.webp,.pdf" hidden><span
+            id="limits" class="file-hint"></span>
+        </div>
+        <div id="selected" class="selected" hidden><span class="file-icon" aria-hidden="true">▧</span>
+          <div class="file-details"><strong id="file-name"></strong><span id="file-size"></span></div><button
+            id="remove" class="icon-button" aria-label="นำไฟล์ออก" type="button">×</button>
+        </div>
+        <div class="settings">
+          <div class="section-label"><span class="step">02 — ปรับให้พอดี</span>
+            <h2>ขนาดที่ใช่ คุณภาพที่ชอบ</h2>
+          </div>
+          <div class="presets" role="group" aria-label="ระดับคุณภาพ"><button type="button"
+              data-quality="90"><strong>คุณภาพสูง</strong><span>เก็บรายละเอียด</span></button><button type="button"
+              data-quality="75" class="active" aria-pressed="true"><strong>สมดุล <span
+                  class="recommended">แนะนำ</span></strong><span>คมชัด ขนาดพอดี</span></button><button type="button"
+              data-quality="45"><strong>ไฟล์เล็ก</strong><span>ประหยัดพื้นที่</span></button></div>
+          <div class="quality-label"><label for="quality">คุณภาพภาพ</label><output id="quality-value"
+              for="quality">75%</output></div><input id="quality" type="range" min="10" max="100" value="75">
+          <div class="range-labels"><span>ไฟล์เล็กกว่า</span><span>รายละเอียดมากกว่า</span></div>
+          <p id="pdf-notice" class="note" hidden>PDF จะส่งไปยังเซิร์ฟเวอร์ localhost ในเครื่องนี้
+            และลบไฟล์ชั่วคราวทันทีเมื่อเสร็จหรือยกเลิก • ปรับคุณภาพภาพภายในเอกสาร โดยคงข้อความไว้ • ไม่รองรับ PDF
+            เข้ารหัสและเอกสารที่มีช่องลายเซ็นดิจิทัล</p>
+          <div class="options"><label>รูปแบบไฟล์<select id="format">
+                <option value="image/webp">WebP — แนะนำ</option>
+                <option value="original">รูปแบบเดิม</option>
+                <option value="image/jpeg">JPG</option>
+                <option value="image/png">PNG (ไม่สูญเสียรายละเอียด)</option>
+              </select></label><label>ขนาดด้านยาวสูงสุด<select id="dimension">
+                <option value="0">ขนาดต้นฉบับ</option>
+                <option value="2560">2560 px</option>
+                <option value="1920">1920 px</option>
+                <option value="1280">1280 px</option>
+                <option value="800">800 px</option>
+              </select></label></div>
+          <p id="format-note" class="note">WebP รองรับพื้นหลังโปร่งใส • ข้อมูล metadata จะถูกลบ</p>
+          <button id="compress" type="button" class="button primary compress" disabled>บีบอัดภาพ <span
+              aria-hidden="true">↘</span></button>
+          <div id="progress-area" hidden><progress id="progress" value="0" max="100"
+              aria-label="ความคืบหน้า"></progress><button id="cancel" class="text-button"
+              type="button">ยกเลิกการประมวลผล</button></div>
+          <p id="status" class="status" role="status" aria-live="polite">เลือกภาพเพื่อเริ่มต้น</p>
+        </div>
+      </section>
+      <section id="result" class="result" hidden aria-labelledby="result-title">
+        <div class="result-heading">
+          <div><span class="step">03 — พร้อมใช้งาน</span>
+            <h2 id="result-title">พร้อมสำหรับก้าวต่อไป</h2>
+          </div><span id="saved-badge" class="saved-badge"></span>
+        </div>
+        <div class="previews">
+          <figure>
+            <div class="preview"><img id="before" alt="ภาพต้นฉบับ"><a id="pdf-before" class="pdf-card" target="_blank"
+                rel="noopener" hidden><span>PDF</span>เปิดเอกสารต้นฉบับ ↗</a></div>
+            <figcaption><span>ต้นฉบับ</span><strong id="before-size"></strong></figcaption>
+          </figure>
+          <figure>
+            <div class="preview"><img id="after" alt="ภาพหลังประมวลผล"><a id="pdf-after" class="pdf-card"
+                target="_blank" rel="noopener" hidden><span>PDF</span>เปิดเอกสารผลลัพธ์ ↗</a></div>
+            <figcaption><span>ผลลัพธ์</span><strong id="after-size"></strong></figcaption>
+          </figure>
+        </div>
+        <p id="result-note" class="note"></p><a id="download" class="button primary" download>ดาวน์โหลดภาพ <span
+            aria-hidden="true">↓</span></a>
+      </section>
+    </div>
+    <section id="merge-panel" class="workspace" aria-label="รวม PDF" hidden>
+      <div class="workspace-heading">
+        <div><span class="step">01 — เพิ่มเอกสาร</span>
+          <h2>หลายไฟล์ เรื่องเดียวกัน</h2>
+        </div><span class="pill">MERGE PDF</span>
+      </div>
+      <div id="merge-drop" class="drop-zone">
+        <div class="upload-icon" aria-hidden="true">＋</div>
+        <h3>เลือก PDF ที่ต้องการรวม</h3>
+        <p>ลากไฟล์มาวาง หรือเลือกหลายไฟล์พร้อมกัน</p><button id="merge-browse" type="button"
+          class="button primary">เพิ่มไฟล์ PDF ＋</button><input id="merge-input" type="file"
+          accept="application/pdf,.pdf" multiple hidden><span class="file-hint">2–20 ไฟล์ · ไฟล์ละไม่เกิน 50 MB ·
+          รวมไม่เกิน 100 MB / 500 หน้า</span>
+      </div>
+      <div class="settings"><span class="step">02 — จัดลำดับและรวม</span>
+        <h2>จัดลำดับตามที่ต้องการ</h2>
+        <p class="note">ไฟล์ด้านบนจะอยู่ก่อน ใช้ปุ่ม ↑ ↓ เพื่อเปลี่ยนลำดับ หรือ × เพื่อนำออก</p>
+        <ol id="merge-list" class="merge-list" aria-label="ลำดับ PDF"></ol>
+        <p id="merge-summary" class="note">ยังไม่มีไฟล์ที่เลือก</p>
+        <p class="note">รวมหน้าเอกสารโดยไม่ลดคุณภาพภาพ • PDF ประมวลผลที่ localhost และลบไฟล์ชั่วคราวเมื่อจบงาน •
+          ไม่รองรับไฟล์เข้ารหัสหรือมีช่องลายเซ็นดิจิทัล</p><button id="merge-submit" type="button"
+          class="button primary compress" disabled>รวม PDF ＋</button>
+        <div id="merge-progress" hidden><progress aria-label="กำลังรวม PDF"></progress><button id="merge-cancel"
+            type="button" class="text-button">ยกเลิกการรวมไฟล์</button></div>
+        <p id="merge-status" class="status" role="status" aria-live="polite">เลือก PDF อย่างน้อย 2 ไฟล์เพื่อเริ่มต้น</p>
+        <div id="merge-result" class="merge-result" hidden><span class="step">03 — ครบในไฟล์เดียว</span>
+          <h2>รวมเรียบร้อย พร้อมใช้งาน</h2>
+          <p id="merge-result-info" class="note"></p>
+          <div class="merge-actions"><a id="merge-preview" class="button secondary" target="_blank"
+              rel="noopener">เปิดดู PDF ↗</a><a id="merge-download" class="button primary"
+              download="merged.pdf">ดาวน์โหลด PDF ↓</a></div>
+        </div>
+      </div>
+    </section>
+    <section id="how-it-works" class="benefits" aria-label="ทำงานอย่างไร">
+      <article><span class="benefit-icon" aria-hidden="true">↘</span>
+        <div>
+          <h3>เล็กลง พร้อมส่งต่อ</h3>
+          <p>เลือกคุณภาพให้เหมาะกับงาน<br>แชร์ภาพและเอกสารได้คล่องตัว</p>
+        </div>
+      </article>
+      <article><span class="benefit-icon" aria-hidden="true">◈</span>
+        <div>
+          <h3>ความเป็นส่วนตัวมาก่อน</h3>
+          <p>ประมวลผลในเครื่องของคุณ<br>ไฟล์ PDF ชั่วคราวถูกลบเมื่อจบงาน</p>
+        </div>
+      </article>
+      <article><span class="benefit-icon" aria-hidden="true">⊞</span>
+        <div>
+          <h3>หลายไฟล์ ก็เป็นเรื่องง่าย</h3>
+          <p>รวม PDF จัดหน้าให้เป็นลำดับ<br>พร้อมเปิดดูและดาวน์โหลดทันที</p>
+        </div>
+      </article>
+    </section>
+  </main>
+  <footer><a href="./" class="brand">lightly.</a><span>Less weight. Same story.</span><span>JPG / PNG / WebP /
+      PDF</span></footer>
+  <script type="module" src="app.js"></script>
+  <script type="module" src="merge.js"></script>
+</body>
+
+</html>
