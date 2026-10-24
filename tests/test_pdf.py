@@ -25,7 +25,7 @@ class PDFTests(unittest.TestCase):
         cls.base = f'http://localhost:{cls.port}'
         cls.temp = tempfile.TemporaryDirectory(prefix='lightly-test-')
         cls.server = subprocess.Popen(['node', 'server.mjs'], cwd=ROOT,
-            env={**os.environ, 'PORT': str(cls.port), 'TMPDIR': cls.temp.name},
+            env={**os.environ, 'PORT': str(cls.port), 'TMPDIR': cls.temp.name, **getattr(cls, 'server_env', {})},
             stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         for _ in range(100):
             try:
@@ -187,6 +187,51 @@ class PDFTests(unittest.TestCase):
         self.assertIn('ลำดับ 2', json.loads(body)['error'])
         self.assertEqual(list(Path(self.temp.name).glob('lightly-pdf-*')), [])
         self.assertEqual(self.merge_request([item, item])[0], 200)
+
+
+class HostingTests(unittest.TestCase):
+    server_env = {'NODE_ENV': 'production', 'PUBLIC_ORIGIN': 'https://api.example.com',
+                  'ALLOWED_ORIGINS': 'https://ktppuz.github.io'}
+    setUpClass = classmethod(PDFTests.setUpClass.__func__)
+    tearDownClass = classmethod(PDFTests.tearDownClass.__func__)
+    request = PDFTests.request
+
+    def test_pages_preflight_and_unknown_origin(self):
+        for origin, expected in [('https://ktppuz.github.io', 204), ('https://evil.example', 403)]:
+            req = urllib.request.Request(self.base + '/api/pdf', method='OPTIONS', headers={
+                'Origin': origin, 'Access-Control-Request-Method': 'POST',
+                'Access-Control-Request-Headers': 'content-type,x-file-compressor'})
+            try:
+                response = urllib.request.urlopen(req)
+            except urllib.error.HTTPError as error:
+                response = error
+            with response:
+                self.assertEqual(response.status, expected)
+                if expected == 204:
+                    self.assertEqual(response.headers['Access-Control-Allow-Origin'], origin)
+                    self.assertEqual(response.headers['Access-Control-Allow-Methods'], 'POST')
+                else:
+                    self.assertIsNone(response.headers.get('Access-Control-Allow-Origin'))
+
+    def test_pages_pdf_response_exposes_metadata(self):
+        code, headers, body = self.request(self.pdf, headers={
+            'Content-Type': 'application/pdf', 'X-File-Compressor': '1',
+            'Origin': 'https://ktppuz.github.io', 'Host': 'api.example.com'})
+        self.assertEqual(code, 200)
+        self.assertEqual(headers['Access-Control-Allow-Origin'], 'https://ktppuz.github.io')
+        self.assertIn('X-PDF-Pages', headers['Access-Control-Expose-Headers'])
+        self.assertTrue(body.startswith(b'%PDF-'))
+
+    def test_same_origin_https_api_and_health(self):
+        self.assertEqual(self.request(b'not pdf', headers={'Content-Type': 'application/pdf',
+            'X-File-Compressor': '1', 'Origin': 'https://api.example.com'})[0], 400)
+        with urllib.request.urlopen(self.base + '/healthz') as response:
+            self.assertEqual(json.loads(response.read()), {'status': 'ok'})
+        for file in ['config.js', 'api.js']:
+            with urllib.request.urlopen(self.base + '/' + file) as response:
+                self.assertEqual(response.status, 200)
+        self.assertEqual(self.request(b'', headers={'Host': 'evil.example',
+            'Content-Type': 'application/pdf', 'X-File-Compressor': '1'})[0], 403)
 
 
 if __name__ == '__main__':

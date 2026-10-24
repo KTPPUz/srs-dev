@@ -4,7 +4,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="บีบอัดภาพและ PDF พร้อมรวม PDF หลายไฟล์เป็นไฟล์เดียวในเครื่อง">
+  <meta name="description" content="บีบอัดภาพและ PDF พร้อมรวม PDF หลายไฟล์เป็นไฟล์เดียว">
   <title>Lightly — ลดขนาดไฟล์ออนไลน์</title>
   <link rel="stylesheet" href="styles.css">
 </head>
@@ -22,7 +22,7 @@
         <h1>ไฟล์เล็กลง<span>งานก็คล่องขึ้น.</span></h1>
         <p>พื้นที่เล็ก ๆ ที่ช่วยให้งานไฟล์เป็นเรื่องง่าย<br>บีบอัดภาพ ลดขนาด PDF หรือรวมเอกสาร จบในที่เดียว</p>
         <div class="tags"><span><span aria-hidden="true">✓</span> ใช้ฟรี ไม่ต้องสมัคร</span><span><span
-              aria-hidden="true">◈</span> ไฟล์อยู่ในเครื่องคุณ</span></div>
+              aria-hidden="true">◈</span> ภาพไม่ต้องอัปโหลด</span></div>
         <div class="format-tags" aria-label="ชนิดไฟล์ที่รองรับ">
           <span>JPG</span><span>PNG</span><span>WEBP</span><span>PDF</span><span class="format-caption">Small files. Big
             possibilities.</span></div>
@@ -53,6 +53,7 @@
           บีบอัดไฟล์</button><button id="merge-tab" type="button" aria-pressed="false" aria-controls="merge-panel"><span
             aria-hidden="true">⊞</span> รวม PDF</button></nav>
     </div>
+    <p id="backend-notice" class="note" role="status" hidden>ขณะนี้ใช้งานบีบอัดภาพได้ ส่วนบริการบีบอัดและรวม PDF ยังไม่พร้อมให้บริการ</p>
     <div id="compress-panel">
       <section class="workspace" aria-label="เครื่องมือบีบอัดภาพและ PDF">
         <div class="workspace-heading">
@@ -84,7 +85,7 @@
           <div class="quality-label"><label for="quality">คุณภาพภาพ</label><output id="quality-value"
               for="quality">75%</output></div><input id="quality" type="range" min="10" max="100" value="75">
           <div class="range-labels"><span>ไฟล์เล็กกว่า</span><span>รายละเอียดมากกว่า</span></div>
-          <p id="pdf-notice" class="note" hidden>PDF จะส่งไปยังเซิร์ฟเวอร์ localhost ในเครื่องนี้
+          <p id="pdf-notice" class="note" hidden>PDF จะส่งไปยังเซิร์ฟเวอร์เพื่อประมวลผล
             และลบไฟล์ชั่วคราวทันทีเมื่อเสร็จหรือยกเลิก • ปรับคุณภาพภาพภายในเอกสาร โดยคงข้อความไว้ • ไม่รองรับ PDF
             เข้ารหัสและเอกสารที่มีช่องลายเซ็นดิจิทัล</p>
           <div class="options"><label>รูปแบบไฟล์<select id="format">
@@ -149,7 +150,7 @@
         <p class="note">ไฟล์ด้านบนจะอยู่ก่อน ใช้ปุ่ม ↑ ↓ เพื่อเปลี่ยนลำดับ หรือ × เพื่อนำออก</p>
         <ol id="merge-list" class="merge-list" aria-label="ลำดับ PDF"></ol>
         <p id="merge-summary" class="note">ยังไม่มีไฟล์ที่เลือก</p>
-        <p class="note">รวมหน้าเอกสารโดยไม่ลดคุณภาพภาพ • PDF ประมวลผลที่ localhost และลบไฟล์ชั่วคราวเมื่อจบงาน •
+        <p class="note">รวมหน้าเอกสารโดยไม่ลดคุณภาพภาพ • PDF ส่งไปประมวลผลบนเซิร์ฟเวอร์ และลบไฟล์ชั่วคราวเมื่อจบงาน •
           ไม่รองรับไฟล์เข้ารหัสหรือมีช่องลายเซ็นดิจิทัล</p><button id="merge-submit" type="button"
           class="button primary compress" disabled>รวม PDF ＋</button>
         <div id="merge-progress" hidden><progress aria-label="กำลังรวม PDF"></progress><button id="merge-cancel"
@@ -174,7 +175,7 @@
       <article><span class="benefit-icon" aria-hidden="true">◈</span>
         <div>
           <h3>ความเป็นส่วนตัวมาก่อน</h3>
-          <p>ประมวลผลในเครื่องของคุณ<br>ไฟล์ PDF ชั่วคราวถูกลบเมื่อจบงาน</p>
+          <p>ภาพประมวลผลในเครื่อง PDF ส่งไปเซิร์ฟเวอร์<br>ไฟล์ชั่วคราวถูกลบเมื่อจบงาน</p>
         </div>
       </article>
       <article><span class="benefit-icon" aria-hidden="true">⊞</span>

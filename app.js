@@ -1,4 +1,5 @@
-// Images stay in the browser; PDF is processed by the local server.
+import { apiUrl, pdfAvailable } from './api.js';
+// Images stay in the browser; PDF is processed by the configured server.
 const CONFIG = Object.freeze({ maxFileBytes: 20 * 1024 * 1024, maxPdfBytes: 50 * 1024 * 1024, maxPixels: 40_000_000, maxDimension: 16384 });
 const $ = (id) => document.getElementById(id);
 const ui = Object.fromEntries(['file-input', 'browse', 'drop-zone', 'limits', 'selected', 'file-name', 'file-size', 'remove', 'quality', 'quality-value', 'format', 'dimension', 'format-note', 'compress', 'progress-area', 'progress', 'cancel', 'status', 'result', 'before', 'after', 'before-size', 'after-size', 'saved-badge', 'result-note', 'download'].map(id => [id, $(id)]));
@@ -103,6 +104,7 @@ async function selectFile(files) {
     if (candidate.size > limit) throw new Error(`ไฟล์ใหญ่เกินกำหนด สูงสุด ${sizes(limit)} ต่อไฟล์`);
     status('กำลังตรวจสอบไฟล์…');
     if (pdfCandidate) {
+      if (!pdfAvailable) throw new Error('บริการ PDF ยังไม่พร้อมใช้งาน ขณะนี้สามารถบีบอัดภาพได้');
       const signature = new TextDecoder().decode(await candidate.slice(0, 8).arrayBuffer());
       if (current !== revision) return;
       if (!/\.pdf$/i.test(candidate.name) || candidate.type && candidate.type !== 'application/pdf' || !/^%PDF-(?:1\.[0-7]|2\.0)/.test(signature)) throw new Error('นามสกุล ชนิดไฟล์ หรือ signature PDF ไม่ถูกต้อง');
@@ -163,14 +165,14 @@ async function compressPdf() {
   clearResult();
   processing(true);
   ui.progress.value = 10;
-  status('กำลังส่ง PDF ไปประมวลผลที่ localhost…');
+  status('กำลังส่ง PDF ไปประมวลผลที่เซิร์ฟเวอร์…');
   let stage;
   try {
     stage = setTimeout(() => { if (current === revision) { ui.progress.removeAttribute('value'); status('กำลังบีบอัด PDF… ระยะเวลาขึ้นกับจำนวนหน้าและภาพภายในเอกสาร'); } }, 500);
-    const response = await fetch(`/api/pdf?quality=${ui.quality.value}`, { method: 'POST', headers: { 'Content-Type': 'application/pdf', 'X-File-Compressor': '1' }, body: source, signal: controller.signal });
+    const response = await fetch(apiUrl(`/api/pdf?quality=${ui.quality.value}`), { method: 'POST', headers: { 'Content-Type': 'application/pdf', 'X-File-Compressor': '1' }, body: source, signal: controller.signal });
     if (!response.ok) {
       const message = await response.json().catch(() => ({}));
-      throw new Error(message.error || 'ไม่สามารถใช้ PDF worker ได้ กรุณาเปิดเว็บผ่าน npm start ที่ localhost:3000');
+      throw new Error(message.error || `บริการ PDF ไม่พร้อมใช้งาน (HTTP ${response.status}) กรุณาลองอีกครั้งภายหลัง`);
     }
     const result = await response.blob();
     if (current !== revision) return;
@@ -270,3 +272,8 @@ ui.compress.addEventListener('click', compress);
 ui.cancel.addEventListener('click', () => { revision++; pdfController?.abort(); pdfController = null; processing(false); status('ยกเลิกแล้ว ปรับการตั้งค่าหรือกดบีบอัดเพื่อลองอีกครั้ง'); });
 window.addEventListener('pagehide', () => { pdfController?.abort(); if (inputUrl) URL.revokeObjectURL(inputUrl); if (outputUrl) URL.revokeObjectURL(outputUrl); });
 settingsChanged();
+if (!pdfAvailable) {
+  $('backend-notice').hidden = false;
+  ui['file-input'].accept = 'image/jpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp';
+  ui.limits.textContent = `JPG, PNG, WebP ≤ ${sizes(CONFIG.maxFileBytes)} · PDF ยังไม่พร้อมให้บริการ`;
+}

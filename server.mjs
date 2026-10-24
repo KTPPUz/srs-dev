@@ -5,19 +5,30 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 const port = Number(process.env.PORT || 3000);
+const host = process.env.HOST || '127.0.0.1';
+function originValue(value) {
+  const url = new URL(value);
+  if (!['http:', 'https:'].includes(url.protocol) || url.username || url.password || url.pathname !== '/' || url.search || url.hash) throw new Error('Origins must be http(s) origins without paths or credentials');
+  return url.origin;
+}
+const publicOrigin = process.env.PUBLIC_ORIGIN ? originValue(process.env.PUBLIC_ORIGIN) : '';
+if (process.env.NODE_ENV === 'production' && !publicOrigin) throw new Error('Set PUBLIC_ORIGIN to the backend public HTTPS origin before starting production');
+if (process.env.NODE_ENV === 'production' && new URL(publicOrigin).protocol !== 'https:' && !['localhost', '127.0.0.1'].includes(new URL(publicOrigin).hostname)) throw new Error('Production PUBLIC_ORIGIN must use HTTPS');
+const localOrigins = [`http://localhost:${port}`, `http://127.0.0.1:${port}`];
+const allowedOrigins = new Set([...(publicOrigin ? [publicOrigin] : localOrigins), ...(process.env.ALLOWED_ORIGINS || '').split(',').map(value => value.trim()).filter(Boolean).map(originValue)]);
+const allowedHosts = new Set([`localhost:${port}`, `127.0.0.1:${port}`, ...(publicOrigin ? [new URL(publicOrigin).host] : [])]);
 const MAX_PDF_BYTES = 50 * 1024 * 1024;
 const MAX_MERGE_BYTES = 100 * 1024 * 1024;
 const WORKER_TIMEOUT = 90_000;
 const root = fileURLToPath(new URL('.', import.meta.url));
 const python = process.env.PDF_PYTHON || join(root, '.venv/bin/python');
-const files = { '/': ['index.html', 'text/html'], '/index.html': ['index.html', 'text/html'], '/styles.css': ['styles.css', 'text/css'], '/app.js': ['app.js', 'text/javascript'], '/merge.js': ['merge.js', 'text/javascript'] };
+const files = { '/': ['index.html', 'text/html'], '/index.html': ['index.html', 'text/html'], '/styles.css': ['styles.css', 'text/css'], '/app.js': ['app.js', 'text/javascript'], '/merge.js': ['merge.js', 'text/javascript'], '/api.js': ['api.js', 'text/javascript'], '/config.js': ['config.js', 'text/javascript'] };
 let active = false;
 function json(res, code, error) { if (!res.destroyed && !res.writableEnded) { res.writeHead(code, { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' }); res.end(JSON.stringify({ error })); } }
 async function pdf(req, res, url) {
   const merging = url.pathname === '/api/pdf/merge';
   const maxBytes = merging ? MAX_MERGE_BYTES + 1024 * 1024 : MAX_PDF_BYTES;
-  const origin = req.headers.origin;
-  if (req.headers['x-file-compressor'] !== '1' || origin && origin !== `http://${req.headers.host}`) return json(res, 403, 'ไม่อนุญาตคำขอจากเว็บไซต์อื่น');
+  if (req.headers['x-file-compressor'] !== '1') return json(res, 403, 'ไม่อนุญาตคำขอนี้');
   if (merging ? !/^multipart\/form-data;\s*boundary=/i.test(req.headers['content-type'] || '') : req.headers['content-type'] !== 'application/pdf') return json(res, 415, 'กรุณาเลือกไฟล์ PDF');
   const quality = Number(url.searchParams.get('quality'));
   if (!merging && (!Number.isInteger(quality) || quality < 10 || quality > 100)) return json(res, 400, 'คุณภาพต้องอยู่ระหว่าง 10–100');
@@ -100,8 +111,27 @@ async function pdf(req, res, url) {
 }
 http.createServer(async (req, res) => {
   res.setHeader('X-Content-Type-Options', 'nosniff');
-  if (![`localhost:${port}`, `127.0.0.1:${port}`].includes(req.headers.host)) return json(res, 403, 'เปิดเว็บผ่าน localhost เท่านั้น');
+  if (!allowedHosts.has(req.headers.host)) return json(res, 403, 'ไม่อนุญาต hostname นี้');
   const url = new URL(req.url, 'http://localhost');
+  if (url.pathname === '/healthz' && ['GET', 'HEAD'].includes(req.method)) {
+    res.writeHead(200, { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' });
+    return res.end(req.method === 'HEAD' ? undefined : '{"status":"ok"}');
+  }
+  if (['/api/pdf', '/api/pdf/merge'].includes(url.pathname)) {
+    res.setHeader('Vary', 'Origin');
+    const origin = req.headers.origin;
+    if (origin && !allowedOrigins.has(origin)) return json(res, 403, 'ไม่อนุญาตคำขอจากเว็บไซต์อื่น');
+    if (origin) {
+      res.setHeader('Access-Control-Allow-Origin', origin);
+      res.setHeader('Access-Control-Expose-Headers', 'X-PDF-Pages, X-PDF-DPI, X-PDF-Files, X-PDF-Original, Content-Disposition');
+    }
+    if (req.method === 'OPTIONS') {
+      const headers = (req.headers['access-control-request-headers'] || '').toLowerCase().split(',').map(value => value.trim()).filter(Boolean);
+      if (!origin || req.headers['access-control-request-method'] !== 'POST' || headers.some(value => !['content-type', 'x-file-compressor'].includes(value))) return json(res, 403, 'ไม่อนุญาตคำขอนี้');
+      res.writeHead(204, { 'Access-Control-Allow-Methods': 'POST', 'Access-Control-Allow-Headers': 'Content-Type, X-File-Compressor', 'Access-Control-Max-Age': '600' });
+      return res.end();
+    }
+  }
   if (['/api/pdf', '/api/pdf/merge'].includes(url.pathname) && req.method === 'POST') return pdf(req, res, url);
   const file = files[url.pathname];
   if (!file || !['GET', 'HEAD'].includes(req.method)) { res.writeHead(404); res.end('Not found'); return; }
@@ -110,4 +140,4 @@ http.createServer(async (req, res) => {
     res.writeHead(200, { 'Content-Type': `${file[1]}; charset=utf-8`, 'X-Content-Type-Options': 'nosniff', 'Cache-Control': 'no-cache', 'Content-Security-Policy': "default-src 'self'; img-src 'self' blob: data:; style-src 'self'; script-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'" });
     res.end(req.method === 'HEAD' ? undefined : body);
   } catch { res.writeHead(500); res.end('Unable to read application file'); }
-}).listen(port, '127.0.0.1', () => console.log(`File Compressor ready: http://localhost:${port}`));
+}).listen(port, host, () => console.log(`File Compressor ready: ${publicOrigin || `http://localhost:${port}`}`));

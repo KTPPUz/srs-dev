@@ -1,3 +1,4 @@
+import { apiUrl, pdfAvailable } from './api.js';
 const $ = id => document.getElementById(id);
 const MAX = { files: 20, each: 50 * 1024 * 1024, total: 100 * 1024 * 1024 };
 const sizes = bytes => bytes < 1048576 ? `${(bytes / 1024).toFixed(1)} KB` : `${(bytes / 1048576).toFixed(2)} MB`;
@@ -15,7 +16,7 @@ function clearResult() {
   outputUrl = null;
 }
 function controls() {
-  const disabled = !!controller || validating;
+  const disabled = !pdfAvailable || !!controller || validating;
   $('merge-browse').disabled = disabled;
   $('merge-input').disabled = disabled;
   $('merge-submit').disabled = disabled || files.length < 2;
@@ -60,7 +61,7 @@ function render() {
   controls();
 }
 async function addFiles(candidates) {
-  if (controller || validating || !candidates.length) return;
+  if (!pdfAvailable || controller || validating || !candidates.length) return;
   validating = true;
   controls();
   try {
@@ -82,16 +83,16 @@ async function addFiles(candidates) {
   finally { validating = false; $('merge-input').value = ''; controls(); }
 }
 async function merge() {
-  if (controller || validating || files.length < 2) return;
+  if (!pdfAvailable || controller || validating || files.length < 2) return;
   const current = ++revision;
   const request = new AbortController(); controller = request;
   clearResult(); controls();
-  message('กำลังรวม PDF ที่ localhost…');
+  message('กำลังรวม PDF ที่เซิร์ฟเวอร์…');
   try {
     const form = new FormData();
     // Array order is the page order, including intentionally repeated files.
     files.forEach((file, index) => form.append('files', file, `${index + 1}.pdf`));
-    const response = await fetch('/api/pdf/merge', { method: 'POST', headers: { 'X-File-Compressor': '1' }, body: form, signal: request.signal });
+    const response = await fetch(apiUrl('/api/pdf/merge'), { method: 'POST', headers: { 'X-File-Compressor': '1' }, body: form, signal: request.signal });
     if (!response.ok) {
       const data = await response.json().catch(() => ({}));
       throw new Error(data.error || `รวม PDF ไม่สำเร็จ (HTTP ${response.status}) กรุณารีเฟรชแล้วลองอีกครั้ง`);
@@ -126,3 +127,4 @@ $('merge-submit').addEventListener('click', merge);
 $('merge-cancel').addEventListener('click', () => { revision++; controller?.abort(); controller = null; controls(); message('ยกเลิกแล้ว จัดลำดับหรือกดรวม PDF เพื่อลองใหม่'); });
 window.addEventListener('pagehide', () => { controller?.abort(); if (outputUrl) URL.revokeObjectURL(outputUrl); });
 render();
+if (!pdfAvailable) message('บริการรวม PDF ยังไม่พร้อมใช้งาน ขณะนี้สามารถใช้แท็บบีบอัดไฟล์สำหรับภาพได้');

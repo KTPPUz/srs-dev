@@ -1,0 +1,11 @@
+.git
+.github
+.venv
+_site
+tests
+__pycache__
+*.pyc
+.env
+.env.*
+.DS_Store
+node_modules
