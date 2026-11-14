@@ -110,14 +110,15 @@ async function merge() {
   } catch (error) { if (current === revision && error.name !== 'AbortError') message(error.message, true); }
   finally { if (controller === request) controller = null; controls(); }
 }
-function selectTool(merging) {
-  $('compress-panel').hidden = merging;
-  $('merge-panel').hidden = !merging;
-  $('compression-tab').setAttribute('aria-pressed', String(!merging));
-  $('merge-tab').setAttribute('aria-pressed', String(merging));
+function selectTool(tool) {
+  for (const [name, tab] of [['compress', 'compression'], ['merge', 'merge'], ['scan', 'scan']]) {
+    $(`${name}-panel`).hidden = name !== tool;
+    $(`${tab}-tab`).setAttribute('aria-pressed', String(name === tool));
+  }
 }
-$('compression-tab').addEventListener('click', () => selectTool(false));
-$('merge-tab').addEventListener('click', () => selectTool(true));
+$('compression-tab').addEventListener('click', () => selectTool('compress'));
+$('merge-tab').addEventListener('click', () => selectTool('merge'));
+$('scan-tab').addEventListener('click', () => selectTool('scan'));
 $('merge-browse').addEventListener('click', () => $('merge-input').click());
 $('merge-input').addEventListener('change', event => addFiles([...event.target.files]));
 $('merge-drop').addEventListener('dragover', event => { event.preventDefault(); if (!controller && !validating) $('merge-drop').classList.add('dragging'); });

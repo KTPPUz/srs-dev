@@ -22,7 +22,7 @@ const MAX_MERGE_BYTES = 100 * 1024 * 1024;
 const WORKER_TIMEOUT = 90_000;
 const root = fileURLToPath(new URL('.', import.meta.url));
 const python = process.env.PDF_PYTHON || join(root, '.venv/bin/python');
-const files = { '/': ['index.html', 'text/html'], '/index.html': ['index.html', 'text/html'], '/styles.css': ['styles.css', 'text/css'], '/app.js': ['app.js', 'text/javascript'], '/merge.js': ['merge.js', 'text/javascript'], '/api.js': ['api.js', 'text/javascript'], '/config.js': ['config.js', 'text/javascript'] };
+const files = { '/': ['index.html', 'text/html'], '/index.html': ['index.html', 'text/html'], '/styles.css': ['styles.css', 'text/css'], '/app.js': ['app.js', 'text/javascript'], '/merge.js': ['merge.js', 'text/javascript'], '/scan.js': ['scan.js', 'text/javascript'], '/scan-pdf.js': ['scan-pdf.js', 'text/javascript'], '/api.js': ['api.js', 'text/javascript'], '/config.js': ['config.js', 'text/javascript'] };
 let active = false;
 function json(res, code, error) { if (!res.destroyed && !res.writableEnded) { res.writeHead(code, { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' }); res.end(JSON.stringify({ error })); } }
 async function pdf(req, res, url) {

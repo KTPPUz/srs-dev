@@ -39,6 +39,8 @@ jobs:
         run: npm run check
       - name: Test Pages packaging
         run: npm run test:pages
+      - name: Test scan PDF generation
+        run: node --test tests/scan-pdf.test.mjs
       - name: Prepare website
         run: npm run build:pages
         env:

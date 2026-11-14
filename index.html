@@ -4,7 +4,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="บีบอัดภาพและ PDF พร้อมรวม PDF หลายไฟล์เป็นไฟล์เดียว">
+  <meta name="description" content="บีบอัดภาพและ PDF รวม PDF และสแกนเอกสารจากภาพ">
   <title>Lightly — ลดขนาดไฟล์ออนไลน์</title>
   <link rel="stylesheet" href="styles.css">
 </head>
@@ -20,7 +20,7 @@
       <div class="intro-copy"><span class="eyebrow"><span class="status-dot"></span> A LITTLE LIGHTER. A LOT
           EASIER.</span>
         <h1>ไฟล์เล็กลง<span>งานก็คล่องขึ้น.</span></h1>
-        <p>พื้นที่เล็ก ๆ ที่ช่วยให้งานไฟล์เป็นเรื่องง่าย<br>บีบอัดภาพ ลดขนาด PDF หรือรวมเอกสาร จบในที่เดียว</p>
+        <p>พื้นที่เล็ก ๆ ที่ช่วยให้งานไฟล์เป็นเรื่องง่าย<br>บีบอัดภาพ ลดขนาด PDF รวมไฟล์ หรือสแกนเอกสาร จบในที่เดียว</p>
         <div class="tags"><span><span aria-hidden="true">✓</span> ใช้ฟรี ไม่ต้องสมัคร</span><span><span
               aria-hidden="true">◈</span> ภาพไม่ต้องอัปโหลด</span></div>
         <div class="format-tags" aria-label="ชนิดไฟล์ที่รองรับ">
@@ -51,9 +51,9 @@
       <nav class="tool-switch" aria-label="เลือกเครื่องมือ"><button id="compression-tab" type="button"
           aria-pressed="true" aria-controls="compress-panel"><span aria-hidden="true">↘</span>
           บีบอัดไฟล์</button><button id="merge-tab" type="button" aria-pressed="false" aria-controls="merge-panel"><span
-            aria-hidden="true">⊞</span> รวม PDF</button></nav>
+            aria-hidden="true">⊞</span> รวม PDF</button><button id="scan-tab" type="button" aria-pressed="false" aria-controls="scan-panel"><span aria-hidden="true">▣</span> สแกนเอกสาร</button></nav>
     </div>
-    <p id="backend-notice" class="note" role="status" hidden>ขณะนี้ใช้งานบีบอัดภาพได้ ส่วนบริการบีบอัดและรวม PDF ยังไม่พร้อมให้บริการ</p>
+    <p id="backend-notice" class="note" role="status" hidden>ขณะนี้ใช้งานบีบอัดภาพและสแกนเอกสารได้ ส่วนบริการบีบอัดและรวม PDF ยังไม่พร้อมให้บริการ</p>
     <div id="compress-panel">
       <section class="workspace" aria-label="เครื่องมือบีบอัดภาพและ PDF">
         <div class="workspace-heading">
@@ -165,6 +165,36 @@
         </div>
       </div>
     </section>
+    <section id="scan-panel" class="workspace" aria-label="สแกนเอกสาร" hidden>
+      <div class="workspace-heading"><div><span class="step">01 — ถ่ายภาพหรือเลือกรูป</span><h2>เปลี่ยนภาพเป็นเอกสาร</h2></div><span class="pill">SCAN TO PDF</span></div>
+      <div class="scan-source">
+        <div class="merge-actions"><button id="scan-camera" class="button primary" type="button">ถ่ายภาพเอกสาร</button><button id="scan-browse" class="button secondary" type="button">เลือกรูปจากเครื่อง ＋</button></div>
+        <input id="scan-input" type="file" accept="image/jpeg,image/png,image/webp" hidden>
+        <input id="scan-capture" type="file" accept="image/*" capture="environment" hidden>
+        <p class="note">JPG / PNG / WebP · รูปละไม่เกิน 20 MB / 40 ล้านพิกเซล · สูงสุด 20 หน้า<br>ถ่ายให้เห็นขอบเอกสารครบ กล้องจะเปิดผ่านตัวเลือกของอุปกรณ์ที่รองรับ</p>
+        <div id="scan-editor" hidden>
+          <h3>ครอปขอบและปรับภาพ</h3>
+          <div class="scan-original"><canvas id="scan-original" aria-label="ภาพต้นฉบับ"></canvas><div id="scan-crop" aria-hidden="true"></div></div>
+          <div class="scan-crops" role="group" aria-label="ตัดขอบภาพเป็นเปอร์เซ็นต์">
+            <label>ขอบบน <output id="scan-top-value">0%</output><input id="scan-top" type="range" min="0" max="45" value="0"></label>
+            <label>ขอบล่าง <output id="scan-bottom-value">0%</output><input id="scan-bottom" type="range" min="0" max="45" value="0"></label>
+            <label>ขอบซ้าย <output id="scan-left-value">0%</output><input id="scan-left" type="range" min="0" max="45" value="0"></label>
+            <label>ขอบขวา <output id="scan-right-value">0%</output><input id="scan-right" type="range" min="0" max="45" value="0"></label>
+          </div>
+          <div class="options"><label>โหมดภาพ<select id="scan-mode"><option value="color">สีเดิม</option><option value="gray">ระดับสีเทา</option><option value="bw">ขาวดำ — ตัวอักษรชัด</option></select></label><label>ความสว่าง <output id="scan-brightness-value">100%</output><input id="scan-brightness" type="range" min="60" max="160" value="100"></label></div>
+          <div class="merge-actions"><button id="scan-rotate" class="button secondary" type="button">หมุน 90° ↻</button><button id="scan-reset" class="button secondary" type="button">คืนค่าการปรับภาพ</button><button id="scan-add" class="button primary" type="button">เพิ่มหน้านี้ ＋</button></div>
+          <p class="note">ตัวอย่างหน้าที่จะเพิ่ม</p><canvas id="scan-preview" class="scan-preview" aria-label="ตัวอย่างเอกสารหลังปรับภาพ"></canvas>
+        </div>
+      </div>
+      <div class="settings"><span class="step">02 — จัดหน้าและบันทึก</span><h2>เอกสารพร้อมส่งต่อ</h2>
+        <p class="note">เพิ่มทีละหน้า ใช้ ↑ ↓ จัดลำดับ หรือ × นำหน้าออก • PDF ขนาด A4 ตามแนวภาพ</p>
+        <ol id="scan-list" class="merge-list" aria-label="ลำดับหน้าสแกน"></ol>
+        <p class="note">ภาพและ PDF ที่สแกนประมวลผลในเบราว์เซอร์ ไม่ส่งขึ้นเซิร์ฟเวอร์ • PDF เป็นภาพ ยังไม่รองรับอ่านข้อความ (OCR) หรือปรับมุมเอียงอัตโนมัติ</p>
+        <button id="scan-export" class="button primary compress" type="button" disabled>สร้าง PDF ↓</button>
+        <p id="scan-status" class="status" role="status" aria-live="polite">ถ่ายภาพหรือเลือกรูปเพื่อเริ่มสแกน</p>
+        <div id="scan-result" class="merge-result" hidden><h2>สแกนเรียบร้อย พร้อมใช้งาน</h2><p id="scan-result-info" class="note"></p><div class="merge-actions"><a id="scan-open" class="button secondary" target="_blank" rel="noopener">เปิดดู PDF ↗</a><a id="scan-download" class="button primary" download="scanned-document.pdf">ดาวน์โหลด PDF ↓</a></div></div>
+      </div>
+    </section>
     <section id="how-it-works" class="benefits" aria-label="ทำงานอย่างไร">
       <article><span class="benefit-icon" aria-hidden="true">↘</span>
         <div>
@@ -190,6 +220,7 @@
       PDF</span></footer>
   <script type="module" src="app.js"></script>
   <script type="module" src="merge.js"></script>
+  <script type="module" src="scan.js"></script>
 </body>
 
 </html>
