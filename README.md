@@ -1,5 +1,7 @@
 # Lightly — File Compressor
 
+ใช้ฟอนต์ Noto Sans Thai จาก Google Fonts โดยโหลดไฟล์ `NotoSansThai.ttf` ภายในเว็บไซต์ รองรับน้ำหนัก 100–900 พร้อมสัญญาอนุญาต SIL Open Font License ใน `NotoSansThai-OFL.txt`
+
 บีบอัด JPG / PNG / WebP ใน browser และ PDF ผ่าน Python worker ที่เซิร์ฟเวอร์ ครั้งละหนึ่งไฟล์ พร้อม drag & drop, presets, quality และ download ภาพไม่ถูกส่งขึ้น server; PDF ใช้ไฟล์ชั่วคราวที่เซิร์ฟเวอร์และลบทันทีเมื่อเสร็จ ล้มเหลว หรือยกเลิก
 
 ## รันในเครื่อง
