@@ -115,6 +115,7 @@ function selectTool(tool) {
     $(`${name}-panel`).hidden = name !== tool;
     $(`${tab}-tab`).setAttribute('aria-pressed', String(name === tool));
   }
+  document.dispatchEvent(new CustomEvent('toolchange', { detail: tool }));
 }
 $('compression-tab').addEventListener('click', () => selectTool('compress'));
 $('merge-tab').addEventListener('click', () => selectTool('merge'));

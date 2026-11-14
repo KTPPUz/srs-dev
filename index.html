@@ -169,13 +169,23 @@
     <section id="scan-panel" class="workspace" aria-label="สแกนเอกสาร" hidden>
       <div class="workspace-heading"><div><span class="step">01 — ถ่ายภาพหรือเลือกรูป</span><h2>เปลี่ยนภาพเป็นเอกสาร</h2></div><span class="pill">SCAN TO PDF</span></div>
       <div class="scan-source">
-        <div class="merge-actions"><button id="scan-camera" class="button primary" type="button">ถ่ายภาพเอกสาร</button><button id="scan-browse" class="button secondary" type="button">เลือกรูปจากเครื่อง ＋</button></div>
+        <div class="merge-actions"><button id="scan-camera" class="button primary" type="button">เปิดกล้องสแกน</button><button id="scan-native-camera" class="button secondary" type="button">กล้องของเครื่อง</button><button id="scan-browse" class="button secondary" type="button">เลือกรูป ＋</button></div>
         <input id="scan-input" type="file" accept="image/jpeg,image/png,image/webp" hidden>
         <input id="scan-capture" type="file" accept="image/*" capture="environment" hidden>
-        <p class="note">JPG / PNG / WebP · รูปละไม่เกิน 20 MB / 40 ล้านพิกเซล · สูงสุด 20 หน้า<br>ถ่ายให้เห็นขอบเอกสารครบ กล้องจะเปิดผ่านตัวเลือกของอุปกรณ์ที่รองรับ</p>
+        <p class="note">เล็งให้เห็นเอกสารครบทั้งแผ่น ระบบจะจับขอบและถ่ายเมื่อภาพนิ่ง จากนั้นตรวจภาพแล้วเพิ่มหน้า<br>กล้องสดใช้ HTTPS หรือ localhost · ภาพประมวลผลในเครื่อง · สูงสุด 20 หน้า</p>
+        <div id="scan-live" class="scan-live" hidden>
+          <div class="scan-viewfinder"><video id="scan-video" autoplay playsinline muted aria-label="กล้องสแกนเอกสาร"></video><svg viewBox="0 0 1000 1000" preserveAspectRatio="none" aria-hidden="true"><polygon id="scan-live-outline"/></svg></div>
+          <p id="scan-camera-status" class="note" role="status" aria-live="polite">กำลังเปิดกล้อง…</p>
+          <label class="scan-auto-label"><input id="scan-auto" type="checkbox" checked> ถ่ายอัตโนมัติเมื่อเอกสารนิ่ง</label>
+          <progress id="scan-auto-progress" max="1" value="0" aria-label="ความพร้อมในการถ่ายอัตโนมัติ"></progress>
+          <div class="merge-actions"><button id="scan-shutter" class="button primary" type="button" disabled>ถ่ายภาพตอนนี้</button><button id="scan-camera-close" class="button secondary" type="button">ปิดกล้อง</button></div>
+        </div>
         <div id="scan-editor" hidden>
-          <h3>ครอปขอบและปรับภาพ</h3>
-          <div class="scan-original"><canvas id="scan-original" aria-label="ภาพต้นฉบับ"></canvas><div id="scan-crop" aria-hidden="true"></div></div>
+          <h3>ตรวจขอบเอกสารและปรับภาพ</h3>
+          <p class="note">ลากจุดทั้ง 4 ให้ตรงมุมกระดาษ ระบบจะปรับมุมเอกสารให้ตรง • ใช้ปุ่มลูกศรเมื่อโฟกัสจุดเพื่อขยับได้</p>
+          <div class="scan-original"><canvas id="scan-original" aria-label="ภาพต้นฉบับ"></canvas><svg class="scan-corners-svg" viewBox="0 0 1000 1000" preserveAspectRatio="none" aria-hidden="true"><polygon id="scan-corners-outline"/></svg><div id="scan-corner-handles"></div></div>
+          <div class="merge-actions"><button id="scan-detect" class="button secondary" type="button">จับขอบอีกครั้ง</button><button id="scan-full-frame" class="button secondary" type="button">ใช้ภาพเต็ม</button></div>
+          <p class="note">ตัดขอบเพิ่มเติมหลังปรับมุมให้ตรง</p>
           <div class="scan-crops" role="group" aria-label="ตัดขอบภาพเป็นเปอร์เซ็นต์">
             <label>ขอบบน <output id="scan-top-value">0%</output><input id="scan-top" type="range" min="0" max="45" value="0"></label>
             <label>ขอบล่าง <output id="scan-bottom-value">0%</output><input id="scan-bottom" type="range" min="0" max="45" value="0"></label>
@@ -190,7 +200,7 @@
       <div class="settings"><span class="step">02 — จัดหน้าและบันทึก</span><h2>เอกสารพร้อมส่งต่อ</h2>
         <p class="note">เพิ่มทีละหน้า ใช้ ↑ ↓ จัดลำดับ หรือ × นำหน้าออก • PDF ขนาด A4 ตามแนวภาพ</p>
         <ol id="scan-list" class="merge-list" aria-label="ลำดับหน้าสแกน"></ol>
-        <p class="note">ภาพและ PDF ที่สแกนประมวลผลในเบราว์เซอร์ ไม่ส่งขึ้นเซิร์ฟเวอร์ • PDF เป็นภาพ ยังไม่รองรับอ่านข้อความ (OCR) หรือปรับมุมเอียงอัตโนมัติ</p>
+        <p class="note">ภาพและ PDF ที่สแกนประมวลผลในเบราว์เซอร์ ไม่ส่งขึ้นเซิร์ฟเวอร์ • PDF เป็นภาพ ยังไม่รองรับอ่านข้อความ (OCR) • จับขอบได้ดีที่สุดกับกระดาษสีอ่อนบนพื้นหลังเข้ม</p>
         <button id="scan-export" class="button primary compress" type="button" disabled>สร้าง PDF ↓</button>
         <p id="scan-status" class="status" role="status" aria-live="polite">ถ่ายภาพหรือเลือกรูปเพื่อเริ่มสแกน</p>
         <div id="scan-result" class="merge-result" hidden><h2>สแกนเรียบร้อย พร้อมใช้งาน</h2><p id="scan-result-info" class="note"></p><div class="merge-actions"><a id="scan-open" class="button secondary" target="_blank" rel="noopener">เปิดดู PDF ↗</a><a id="scan-download" class="button primary" download="scanned-document.pdf">ดาวน์โหลด PDF ↓</a></div></div>

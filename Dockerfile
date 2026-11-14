@@ -6,7 +6,7 @@ WORKDIR /app
 COPY requirements.txt ./
 RUN python3 -m venv /opt/venv \
     && /opt/venv/bin/pip install --no-cache-dir -r requirements.txt
-COPY --chown=node:node package.json server.mjs pdf-worker.py index.html NotoSansThai.ttf NotoSansThai-OFL.txt styles.css app.js merge.js scan.js scan-pdf.js api.js config.js ./
+COPY --chown=node:node package.json server.mjs pdf-worker.py index.html NotoSansThai.ttf NotoSansThai-OFL.txt styles.css app.js merge.js scan.js scan-camera.js scan-vision.js scan-pdf.js api.js config.js ./
 ENV NODE_ENV=production HOST=0.0.0.0 PORT=3000 PDF_PYTHON=/opt/venv/bin/python PYTHONDONTWRITEBYTECODE=1
 USER node
 EXPOSE 3000
