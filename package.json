@@ -3,5 +3,12 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "scripts": { "start": "node server.mjs", "build:pages": "node scripts/build-pages.mjs", "test:pages": "node --test tests/pages.test.mjs", "check": "node --check app.js && node --check merge.js && node --check scan.js && node --check scan-camera.js && node --check scan-vision.js && node --check scan-pdf.js && node --check api.js && node --check config.js && node --check server.mjs && node --check scripts/build-pages.mjs" }
+  "scripts": {
+    "start": "node server.mjs",
+    "build:pages": "node scripts/build-pages.mjs",
+    "test:pages": "node --test tests/pages.test.mjs",
+    "check": "node --check app.js && node --check merge.js && node --check scan.js && node --check scan-camera.js && node --check scan-vision.js && node --check scan-pdf.js && node --check api.js && node --check config.js && node --check server.mjs && node --check scripts/build-pages.mjs",
+    "build:hosting": "node scripts/build-pages.mjs",
+    "deploy:firebase": "firebase deploy --only hosting"
+  }
 }

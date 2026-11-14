@@ -172,7 +172,7 @@
         <div class="merge-actions"><button id="scan-camera" class="button primary" type="button">เปิดกล้องสแกน</button><button id="scan-native-camera" class="button secondary" type="button">กล้องของเครื่อง</button><button id="scan-browse" class="button secondary" type="button">เลือกรูป ＋</button></div>
         <input id="scan-input" type="file" accept="image/jpeg,image/png,image/webp" hidden>
         <input id="scan-capture" type="file" accept="image/*" capture="environment" hidden>
-        <p class="note">เล็งให้เห็นเอกสารครบทั้งแผ่น ระบบจะจับขอบและถ่ายเมื่อภาพนิ่ง จากนั้นตรวจภาพแล้วเพิ่มหน้า<br>กล้องสดใช้ HTTPS หรือ localhost · ภาพประมวลผลในเครื่อง · สูงสุด 20 หน้า</p>
+        <p class="note">เล็งให้เห็นเอกสารครบทั้งแผ่น ระบบจะจับขอบและถ่ายเมื่อภาพนิ่ง ตรวจภาพแล้วกดสร้าง PDF ได้เลย<br>กล้องสดใช้ HTTPS หรือ localhost · ภาพประมวลผลในเครื่อง · สูงสุด 20 หน้า</p>
         <div id="scan-live" class="scan-live" hidden>
           <div class="scan-viewfinder"><video id="scan-video" autoplay playsinline muted aria-label="กล้องสแกนเอกสาร"></video><svg viewBox="0 0 1000 1000" preserveAspectRatio="none" aria-hidden="true"><polygon id="scan-live-outline"/></svg></div>
           <p id="scan-camera-status" class="note" role="status" aria-live="polite">กำลังเปิดกล้อง…</p>
@@ -198,9 +198,10 @@
         </div>
       </div>
       <div class="settings"><span class="step">02 — จัดหน้าและบันทึก</span><h2>เอกสารพร้อมส่งต่อ</h2>
-        <p class="note">เพิ่มทีละหน้า ใช้ ↑ ↓ จัดลำดับ หรือ × นำหน้าออก • PDF ขนาด A4 ตามแนวภาพ</p>
+        <p class="note">กดสร้าง PDF เพื่อบันทึกภาพที่กำลังตรวจได้เลย หากมีหลายหน้าให้กด “เพิ่มหน้านี้” แล้วสแกนต่อ • ใช้ ↑ ↓ จัดลำดับ หรือ × นำหน้าออก • PDF ขนาด A4 ตามแนวภาพ</p>
         <ol id="scan-list" class="merge-list" aria-label="ลำดับหน้าสแกน"></ol>
         <p class="note">ภาพและ PDF ที่สแกนประมวลผลในเบราว์เซอร์ ไม่ส่งขึ้นเซิร์ฟเวอร์ • PDF เป็นภาพ ยังไม่รองรับอ่านข้อความ (OCR) • จับขอบได้ดีที่สุดกับกระดาษสีอ่อนบนพื้นหลังเข้ม</p>
+        <p id="scan-summary" class="note" role="status">ถ่ายภาพหรือเลือกรูป แล้วกดสร้าง PDF ได้เลย</p>
         <button id="scan-export" class="button primary compress" type="button" disabled>สร้าง PDF ↓</button>
         <p id="scan-status" class="status" role="status" aria-live="polite">ถ่ายภาพหรือเลือกรูปเพื่อเริ่มสแกน</p>
         <div id="scan-result" class="merge-result" hidden><h2>สแกนเรียบร้อย พร้อมใช้งาน</h2><p id="scan-result-info" class="note"></p><div class="merge-actions"><a id="scan-open" class="button secondary" target="_blank" rel="noopener">เปิดดู PDF ↗</a><a id="scan-download" class="button primary" download="scanned-document.pdf">ดาวน์โหลด PDF ↓</a></div></div>

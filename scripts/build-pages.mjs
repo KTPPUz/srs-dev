@@ -13,4 +13,4 @@ await mkdir(output, { recursive: true });
 for (const file of ['index.html', 'NotoSansThai.ttf', 'NotoSansThai-OFL.txt', 'styles.css', 'app.js', 'merge.js', 'scan.js', 'scan-camera.js', 'scan-vision.js', 'scan-pdf.js', 'api.js']) await copyFile(new URL(file, root), new URL(file, output));
 await writeFile(new URL('config.js', output), `export const API_BASE_URL = ${JSON.stringify(api)};\nexport const STATIC_ONLY = true;\n`);
 await writeFile(new URL('.nojekyll', output), '');
-console.log(`Pages files ready: ${fileURLToPath(output)} (${api ? 'PDF backend configured' : 'images and scanning; set API_BASE_URL to enable PDF compression/merge'})`);
+console.log(`Static files ready: ${fileURLToPath(output)} (${api ? 'PDF backend configured' : 'images and scanning; set API_BASE_URL to enable PDF compression/merge'})`);

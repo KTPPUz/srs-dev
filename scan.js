@@ -21,7 +21,10 @@ function controls() {
   for (const id of ['browse', 'camera', 'native-camera', 'input', 'capture', 'rotate', 'reset', 'detect', 'full-frame', 'mode', 'brightness', ...edges]) $(id).disabled = busy;
   $('corner-handles').querySelectorAll('button').forEach(button => { button.disabled = busy; });
   $('add').disabled = busy || !source || pages.length >= 20;
-  $('export').disabled = busy || !pages.length;
+  const count = pages.length + Number(!!source);
+  $('export').disabled = busy || !count;
+  $('export').textContent = busy ? 'กำลังประมวลผล…' : count ? `สร้าง PDF (${count} หน้า) ↓` : 'สร้าง PDF ↓';
+  $('summary').textContent = source ? `${pages.length} หน้าในรายการ + ภาพที่กำลังตรวจ 1 หน้า · กดสร้าง PDF เพื่อบันทึกทั้งหมดได้เลย` : pages.length ? `พร้อมสร้าง PDF ${pages.length} หน้า` : 'ถ่ายภาพหรือเลือกรูป แล้วกดสร้าง PDF ได้เลย';
   $('list').querySelectorAll('button').forEach(button => { button.disabled = busy || button.dataset.boundary === 'true'; });
 }
 function resetAdjustments() {
@@ -48,8 +51,9 @@ function acceptSource(canvas, name, detected = null) {
   const found = detected || findCorners(canvas);
   initialCorners = found || fullFrame();
   cancelAnimationFrame(frame); drawOriginal(); resetAdjustments(); $('editor').hidden = false;
+  clearResult();
   controls();
-  message(found ? 'จับขอบและปรับมุมให้แล้ว ตรวจภาพก่อนกด “เพิ่มหน้านี้”' : 'ยังจับขอบไม่ได้ ลากจุดทั้ง 4 ให้ตรงมุมกระดาษ หรือใช้ภาพเต็ม');
+  message(found ? 'จับขอบและปรับมุมให้แล้ว ตรวจภาพแล้วกด “สร้าง PDF” ได้เลย หรือเพิ่มหน้าเพื่อสแกนต่อ' : 'ยังจับขอบไม่ได้ ลากจุดทั้ง 4 ให้ตรงมุมกระดาษ หรือใช้ภาพเต็ม แล้วกดสร้าง PDF');
 }
 function rectifiedSource() {
   if (!rectified) {
@@ -187,34 +191,43 @@ $('rotate').addEventListener('click', () => {
   initialCorners = [turned[3], turned[0], turned[1], turned[2]];
   source = next; drawOriginal(); resetAdjustments();
 });
+async function appendCurrentPage() {
+  if (!source) return;
+  if (pages.length >= 20) throw new Error('บันทึกได้สูงสุด 20 หน้า กรุณานำบางหน้าออกก่อนสร้าง PDF');
+  cancelAnimationFrame(frame); preview();
+  const canvas = $('preview');
+  const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg', .88));
+  if (!blob) throw new Error('ประมวลผลภาพไม่สำเร็จ กรุณาลองใหม่');
+  if (pages.reduce((sum, page) => sum + page.bytes.length, 0) + blob.size > 60 * 1024 * 1024) throw new Error('ภาพรวมต้องไม่เกิน 60 MB กรุณานำบางหน้าออก');
+  const bytes = new Uint8Array(await blob.arrayBuffer());
+  const page = { width: canvas.width, height: canvas.height, bytes, name: sourceName, url: URL.createObjectURL(blob) };
+  clearResult(); pages.push(page);
+  source = null; rectified = null; $('editor').hidden = true;
+  for (const id of ['original', 'preview']) { $(id).width = 1; $(id).height = 1; }
+  render();
+}
 $('add').addEventListener('click', async () => {
   if (!source || busy || pages.length >= 20) return;
-  camera.stop();
-  busy = true; controls(); message('กำลังเพิ่มหน้า…');
+  busy = true;
   try {
-    cancelAnimationFrame(frame); preview();
-    const canvas = $('preview');
-    const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg', .88));
-    if (!blob) throw new Error('ประมวลผลภาพไม่สำเร็จ กรุณาลองใหม่');
-    if (pages.reduce((sum, page) => sum + page.bytes.length, 0) + blob.size > 60 * 1024 * 1024) throw new Error('ภาพรวมต้องไม่เกิน 60 MB กรุณานำบางหน้าออก');
-    const bytes = new Uint8Array(await blob.arrayBuffer());
-    clearResult(); pages.push({ width: canvas.width, height: canvas.height, bytes, name: sourceName, url: URL.createObjectURL(blob) });
-    source = null; rectified = null; $('editor').hidden = true;
-    for (const id of ['original', 'preview']) { $(id).width = 1; $(id).height = 1; }
-    render(); message(`เพิ่มแล้ว ${pages.length} หน้า เปิดกล้องสแกนหน้าถัดไปหรือสร้าง PDF ได้เลย`);
+    controls(); message('กำลังเพิ่มหน้า…'); camera.stop();
+    await appendCurrentPage();
+    message(`เพิ่มแล้ว ${pages.length} หน้า เปิดกล้องสแกนหน้าถัดไปหรือสร้าง PDF ได้เลย`);
   } catch (error) { message(error.message, true); }
   finally { busy = false; controls(); }
 });
 $('export').addEventListener('click', async () => {
-  if (busy || !pages.length) return;
-  camera.stop();
-  busy = true; controls(); clearResult(); message('กำลังสร้าง PDF…');
+  if (busy) return;
+  if (!pages.length && !source) { message('ถ่ายภาพหรือเลือกรูปก่อนสร้าง PDF', true); return; }
+  busy = true;
   try {
-    await new Promise(resolve => requestAnimationFrame(resolve));
+    controls(); clearResult(); message('กำลังสร้าง PDF…'); camera.stop();
+    await appendCurrentPage();
     const blob = createScanPdf(pages); outputUrl = URL.createObjectURL(blob);
     $('download').href = outputUrl; $('open').href = outputUrl;
     $('result-info').textContent = `${pages.length} หน้า · ${(blob.size / 1048576).toFixed(2)} MB`;
     $('result').hidden = false; message('สร้าง PDF สำเร็จ ดาวน์โหลดได้เลย');
+    $('result').scrollIntoView({ behavior: 'auto', block: 'nearest' });
   } catch (error) { message(error.message || 'สร้าง PDF ไม่สำเร็จ กรุณาลองใหม่', true); }
   finally { busy = false; controls(); }
 });
