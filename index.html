@@ -3,7 +3,8 @@
 
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#f3f5f1">
   <meta name="description" content="บีบอัดภาพและ PDF รวม PDF และสแกนเอกสารจากภาพ">
   <title>Lightly — ลดขนาดไฟล์ออนไลน์</title>
   <link rel="preload" href="NotoSansThai.ttf" as="font" type="font/ttf" crossorigin>
@@ -14,7 +15,7 @@
   <header class="header"><a href="./" class="brand" aria-label="Lightly หน้าหลัก"><span class="brand-icon">↘</span>
       lightly<span class="brand-dot">.</span></a>
     <nav class="header-nav" aria-label="เมนูหลัก"><a href="#tools">เครื่องมือ</a><a
-        href="#how-it-works">ทำงานอย่างไร</a></nav><span class="header-note"><span class="status-dot"></span></span>
+        href="#how-it-works">ทำงานอย่างไร</a></nav><span class="header-note"><span class="status-dot" aria-hidden="true"></span> Everyday tools</span>
   </header>
   <main>
     <section class="intro">
@@ -46,13 +47,24 @@
       </div>
     </section>
     <div class="tools-heading" id="tools">
-      <div><span class="eyebrow">THE WORKSPACE</span>
+      <div><span class="eyebrow">YOUR WORKSPACE</span>
         <h2>วันนี้ ให้เราช่วยอะไรดี?</h2>
+        <p class="mobile-tool-hint">เลือกเครื่องมือด้านล่าง แล้วเริ่มงานได้เลย</p>
       </div>
-      <nav class="tool-switch" aria-label="เลือกเครื่องมือ"><button id="compression-tab" type="button"
-          aria-pressed="true" aria-controls="compress-panel"><span aria-hidden="true">↘</span>
-          บีบอัดไฟล์</button><button id="merge-tab" type="button" aria-pressed="false" aria-controls="merge-panel"><span
-            aria-hidden="true">⊞</span> รวม PDF</button><button id="scan-tab" type="button" aria-pressed="false" aria-controls="scan-panel"><span aria-hidden="true">▣</span> สแกนเอกสาร</button></nav>
+      <nav class="tool-switch" aria-label="เลือกเครื่องมือ">
+        <button id="compression-tab" type="button" aria-pressed="true" aria-controls="compress-panel">
+          <span class="tool-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="m4 4 6 6m0-5v5H5m15 10-6-6m0 5v-5h5"/><path d="M15 3h4a2 2 0 0 1 2 2v4M9 21H5a2 2 0 0 1-2-2v-4"/></svg></span>
+          <span class="tool-label">บีบอัดไฟล์</span>
+        </button>
+        <button id="merge-tab" type="button" aria-pressed="false" aria-controls="merge-panel">
+          <span class="tool-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="3" width="12" height="15" rx="2"/><path d="M15 18v1a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h2m3 4h6m-3-3v6"/></svg></span>
+          <span class="tool-label">รวม PDF</span>
+        </button>
+        <button id="scan-tab" type="button" aria-pressed="false" aria-controls="scan-panel">
+          <span class="tool-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m13-5h3a2 2 0 0 1 2 2v3m0 8v3a2 2 0 0 1-2 2h-3m-8 0H5a2 2 0 0 1-2-2v-3M3 12h18"/><path d="M8 8h8v8H8z"/></svg></span>
+          <span class="tool-label">สแกนเอกสาร</span>
+        </button>
+      </nav>
     </div>
     <p id="backend-notice" class="note" role="status" hidden>ขณะนี้ใช้งานบีบอัดภาพและสแกนเอกสารได้ ส่วนบริการบีบอัดและรวม PDF ยังไม่พร้อมให้บริการ</p>
     <div id="compress-panel">
@@ -169,7 +181,12 @@
     <section id="scan-panel" class="workspace" aria-label="สแกนเอกสาร" hidden>
       <div class="workspace-heading"><div><span class="step">01 — ถ่ายภาพหรือเลือกรูป</span><h2>เปลี่ยนภาพเป็นเอกสาร</h2></div><span class="pill">SCAN TO PDF</span></div>
       <div class="scan-source">
-        <div class="merge-actions"><button id="scan-camera" class="button primary" type="button">เปิดกล้องสแกน</button><button id="scan-native-camera" class="button secondary" type="button">กล้องของเครื่อง</button><button id="scan-browse" class="button secondary" type="button">เลือกรูป ＋</button></div>
+        <div class="scan-welcome" aria-hidden="true">
+          <div class="scan-welcome-art"><svg viewBox="0 0 160 140" fill="none"><rect x="37" y="17" width="86" height="112" rx="12" fill="#dce8cf" transform="rotate(-9 37 17)"/><rect x="44" y="12" width="78" height="108" rx="10" fill="white" stroke="#d7e2d2"/><path d="M61 39h43M61 50h43M61 61h29M61 82h43M61 93h32" stroke="#d3ded0" stroke-width="4" stroke-linecap="round"/><path d="M27 38V24a5 5 0 0 1 5-5h14m68 0h14a5 5 0 0 1 5 5v14m0 58v14a5 5 0 0 1-5 5h-14m-68 0H32a5 5 0 0 1-5-5V96" stroke="#205b46" stroke-width="3" stroke-linecap="round"/><path d="M21 70h118" stroke="#80ad69" stroke-width="2"/><rect x="17" y="65" width="126" height="10" rx="5" fill="#a9d58a" fill-opacity=".18"/></svg></div>
+          <p>เอกสารชัด พร้อมในไม่กี่แตะ</p>
+          <div class="scan-welcome-steps"><span>01 ถ่ายภาพ</span><i></i><span>02 ปรับมุม</span><i></i><span>03 บันทึก</span></div>
+        </div>
+        <div class="merge-actions scan-source-actions"><button id="scan-camera" class="button primary" type="button">เปิดกล้องสแกน</button><button id="scan-native-camera" class="button secondary" type="button">กล้องของเครื่อง</button><button id="scan-browse" class="button secondary" type="button">เลือกรูป ＋</button></div>
         <input id="scan-input" type="file" accept="image/jpeg,image/png,image/webp" hidden>
         <input id="scan-capture" type="file" accept="image/*" capture="environment" hidden>
         <p class="note">เล็งให้เห็นเอกสารครบทั้งแผ่น ระบบจะจับขอบและถ่ายเมื่อภาพนิ่ง ตรวจภาพแล้วกดสร้าง PDF ได้เลย<br>กล้องสดใช้ HTTPS หรือ localhost · ภาพประมวลผลในเครื่อง · สูงสุด 20 หน้า</p>

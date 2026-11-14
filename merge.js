@@ -116,6 +116,7 @@ function selectTool(tool) {
     $(`${tab}-tab`).setAttribute('aria-pressed', String(name === tool));
   }
   document.dispatchEvent(new CustomEvent('toolchange', { detail: tool }));
+  if (window.matchMedia('(max-width: 850px)').matches) $('tools').scrollIntoView({ behavior: 'auto', block: 'start' });
 }
 $('compression-tab').addEventListener('click', () => selectTool('compress'));
 $('merge-tab').addEventListener('click', () => selectTool('merge'));
