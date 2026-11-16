@@ -7,6 +7,21 @@ let outputUrl = null;
 let controller = null;
 let revision = 0;
 let validating = false;
+function mergeLocally(selected, signal) {
+  return new Promise((resolve, reject) => {
+    const worker = new Worker(new URL('./merge-worker.js', import.meta.url), { type: 'module' });
+    const cleanup = () => { worker.terminate(); signal.removeEventListener('abort', abort); };
+    const abort = () => { cleanup(); reject(new DOMException('Cancelled', 'AbortError')); };
+    worker.onmessage = ({ data }) => {
+      cleanup();
+      if (data.error) reject(new Error(data.error));
+      else resolve({ output: new Blob([data.bytes], { type: 'application/pdf' }), pages: data.pages, count: data.files });
+    };
+    worker.onerror = event => { event.preventDefault(); cleanup(); reject(new Error('โหลดตัวรวม PDF ไม่สำเร็จ กรุณารีเฟรชแล้วลองอีกครั้ง')); };
+    signal.addEventListener('abort', abort, { once: true });
+    worker.postMessage(selected);
+  });
+}
 const message = (text, error = false) => { $('merge-status').textContent = text; $('merge-status').classList.toggle('error', error); };
 function clearResult() {
   $('merge-result').hidden = true;
@@ -16,7 +31,7 @@ function clearResult() {
   outputUrl = null;
 }
 function controls() {
-  const disabled = !pdfAvailable || !!controller || validating;
+  const disabled = !!controller || validating;
   $('merge-browse').disabled = disabled;
   $('merge-input').disabled = disabled;
   $('merge-submit').disabled = disabled || files.length < 2;
@@ -61,7 +76,7 @@ function render() {
   controls();
 }
 async function addFiles(candidates) {
-  if (!pdfAvailable || controller || validating || !candidates.length) return;
+  if (controller || validating || !candidates.length) return;
   validating = true;
   controls();
   try {
@@ -83,27 +98,34 @@ async function addFiles(candidates) {
   finally { validating = false; $('merge-input').value = ''; controls(); }
 }
 async function merge() {
-  if (!pdfAvailable || controller || validating || files.length < 2) return;
+  if (controller || validating || files.length < 2) return;
   const current = ++revision;
   const request = new AbortController(); controller = request;
   clearResult(); controls();
-  message('กำลังรวม PDF ที่เซิร์ฟเวอร์…');
+  message(pdfAvailable ? 'กำลังรวม PDF ที่เซิร์ฟเวอร์…' : 'กำลังรวม PDF ในเครื่องของคุณ…');
   try {
-    const form = new FormData();
-    // Array order is the page order, including intentionally repeated files.
-    files.forEach((file, index) => form.append('files', file, `${index + 1}.pdf`));
-    const response = await fetch(apiUrl('/api/pdf/merge'), { method: 'POST', headers: { 'X-File-Compressor': '1' }, body: form, signal: request.signal });
-    if (!response.ok) {
-      const data = await response.json().catch(() => ({}));
-      throw new Error(data.error || `รวม PDF ไม่สำเร็จ (HTTP ${response.status}) กรุณารีเฟรชแล้วลองอีกครั้ง`);
+    let output, pages, count;
+    if (!pdfAvailable) {
+      ({ output, pages, count } = await mergeLocally(files, request.signal));
+    } else {
+      const form = new FormData();
+      // Array order is the page order, including intentionally repeated files.
+      files.forEach((file, index) => form.append('files', file, `${index + 1}.pdf`));
+      const response = await fetch(apiUrl('/api/pdf/merge'), { method: 'POST', headers: { 'X-File-Compressor': '1' }, body: form, signal: request.signal });
+      if (!response.ok) {
+        const data = await response.json().catch(() => ({}));
+        throw new Error(data.error || `รวม PDF ไม่สำเร็จ (HTTP ${response.status}) กรุณารีเฟรชแล้วลองอีกครั้ง`);
+      }
+      output = await response.blob();
+      pages = response.headers.get('X-PDF-Pages');
+      count = response.headers.get('X-PDF-Files');
     }
-    const output = await response.blob();
     if (current !== revision) return;
     if (output.type !== 'application/pdf') throw new Error('ผลลัพธ์ไม่ใช่ PDF กรุณาลองใหม่');
     outputUrl = URL.createObjectURL(output);
     $('merge-download').href = outputUrl;
     $('merge-preview').href = outputUrl;
-    $('merge-result-info').textContent = `${response.headers.get('X-PDF-Files')} ไฟล์ → 1 PDF · ${response.headers.get('X-PDF-Pages')} หน้า · ${sizes(output.size)}`;
+    $('merge-result-info').textContent = `${count} ไฟล์ → 1 PDF · ${pages} หน้า · ${sizes(output.size)}`;
     $('merge-result').hidden = false;
     message('รวม PDF สำเร็จแล้ว ดาวน์โหลดหรือเปิดดูผลลัพธ์ได้เลย');
     $('merge-result').scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth', block: 'nearest' });
@@ -130,4 +152,7 @@ $('merge-submit').addEventListener('click', merge);
 $('merge-cancel').addEventListener('click', () => { revision++; controller?.abort(); controller = null; controls(); message('ยกเลิกแล้ว จัดลำดับหรือกดรวม PDF เพื่อลองใหม่'); });
 window.addEventListener('pagehide', () => { controller?.abort(); if (outputUrl) URL.revokeObjectURL(outputUrl); });
 render();
-if (!pdfAvailable) message('บริการรวม PDF ยังไม่พร้อมใช้งาน ขณะนี้สามารถใช้แท็บบีบอัดไฟล์สำหรับภาพได้');
+if (!pdfAvailable) {
+  $('merge-privacy').textContent = 'รวม PDF ในเครื่องของคุณโดยไม่อัปโหลดไฟล์ • คงข้อความและคุณภาพภาพ • ไม่คัดลอก bookmarks และไฟล์แนบ • ฟอร์มจะกลายเป็นเนื้อหาที่แก้ไขไม่ได้ • ไม่รองรับไฟล์เข้ารหัสหรือมีช่องลายเซ็นดิจิทัล';
+  message('เลือก PDF อย่างน้อย 2 ไฟล์เพื่อรวมในเครื่องของคุณ');
+}

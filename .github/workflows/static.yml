@@ -39,6 +39,8 @@ jobs:
         run: npm run check
       - name: Test Pages packaging
         run: npm run test:pages
+      - name: Test PDF merging
+        run: npm run test:merge
       - name: Test document scanning
         run: node --test tests/scan-*.test.mjs
       - name: Prepare website

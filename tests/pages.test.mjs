@@ -11,7 +11,8 @@ function client(expression) {
 }
 test('Pages publishes only browser assets and configures the API independently of repository paths', () => {
   build();
-  assert.deepEqual(readdirSync(new URL('_site/', root)).sort(), ['.nojekyll', 'NotoSansThai.ttf', 'NotoSansThai-OFL.txt', 'api.js', 'app.js', 'config.js', 'index.html', 'merge.js', 'scan.js', 'scan-camera.js', 'scan-vision.js', 'scan-pdf.js', 'styles.css'].sort());
+  assert.deepEqual(readdirSync(new URL('_site/', root)).sort(), ['.nojekyll', 'NotoSansThai.ttf', 'NotoSansThai-OFL.txt', 'api.js', 'app.js', 'config.js', 'index.html', 'merge.js', 'merge-pdf.js', 'merge-worker.js', 'scan.js', 'scan-camera.js', 'scan-vision.js', 'scan-pdf.js', 'styles.css', 'vendor'].sort());
+  assert.deepEqual(readdirSync(new URL('_site/vendor/', root)).sort(), ['pdf-lib-LICENSE.md', 'pdf-lib.esm.min.js']);
   client("assert.equal(pdfAvailable, false); assert.throws(() => apiUrl('/api/pdf')); ");
   build('https://api.example.com/');
   client("assert.equal(pdfAvailable, true); assert.equal(apiUrl('/api/pdf?quality=75'), 'https://api.example.com/api/pdf?quality=75'); assert.equal(apiUrl('/api/pdf/merge'), 'https://api.example.com/api/pdf/merge');");

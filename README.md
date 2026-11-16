@@ -16,13 +16,13 @@ npm start
 
 เปิด http://localhost:3000 หรือกำหนดพอร์ตด้วย `PORT=3001 npm start`
 
-เปิดผ่าน Node server สำหรับฟังก์ชันครบทั้งหมด; การเปิด static files ผ่าน MAMP โดยตรงรองรับบีบอัดภาพและสแกนเอกสาร ไม่มี PDF API สำหรับบีบอัดหรือรวม PDF
+เปิดผ่าน Node server สำหรับฟังก์ชันครบทั้งหมด; การเปิด static files ผ่าน MAMP โดยตรงรองรับบีบอัดภาพและสแกนเอกสาร รวม PDF ในเบราว์เซอร์ได้เมื่อใช้ build แบบ static (`npm run build:hosting` แล้วเผยแพร่ `_site`); การบีบอัด PDF ต้องมี API
 
 ## Deploy จาก GitHub
 
 ### Firebase Hosting
 
-ไฟล์ `firebase.json` ตั้งให้เผยแพร่เฉพาะ `_site` และตรวจ JavaScript / build ก่อน deploy อัตโนมัติ ใช้ส่วนสแกนเอกสารและบีบอัดภาพได้โดยไม่ต้องมี backend หรือฐานข้อมูล
+ไฟล์ `firebase.json` ตั้งให้เผยแพร่เฉพาะ `_site` และตรวจ JavaScript / build ก่อน deploy อัตโนมัติ ใช้ส่วนสแกนเอกสาร บีบอัดภาพ และรวม PDF ในเบราว์เซอร์ได้โดยไม่ต้องมี backend หรือฐานข้อมูล
 
 ติดตั้ง Firebase CLI และล็อกอินบัญชีที่เข้าถึงโปรเจกต์ก่อน จากนั้นใช้ Project ID ของระบบนี้แทน `YOUR_PROJECT_ID`:
 
@@ -33,7 +33,7 @@ npm run deploy:firebase -- --project YOUR_PROJECT_ID
 
 เมื่อ deploy สำเร็จ ใช้ URL HTTPS ที่ CLI แสดง เปิดบนมือถือแล้วอนุญาตกล้องได้ ภาพสแกนยังประมวลผลในเบราว์เซอร์และดาวน์โหลดลงเครื่อง ไม่ได้เก็บใน Firebase
 
-หากต้องการบีบอัดและรวม PDF ด้วย ให้ deploy backend ตามหัวข้อด้านล่าง แล้วกำหนด `API_BASE_URL` เป็น HTTPS origin ของ backend ใน environment ขณะรันคำสั่ง deploy รวมทั้งเพิ่ม origin ของเว็บ Firebase ใน `ALLOWED_ORIGINS` ฝั่ง backend ส่วน Hosting เพียงอย่างเดียวไม่รัน Node/Python worker
+หากต้องการบีบอัด PDF หรือใช้บริการรวม PDF ฝั่งเซิร์ฟเวอร์ ให้ deploy backend ตามหัวข้อด้านล่าง แล้วกำหนด `API_BASE_URL` เป็น HTTPS origin ของ backend ใน environment ขณะรันคำสั่ง deploy รวมทั้งเพิ่ม origin ของเว็บ Firebase ใน `ALLOWED_ORIGINS` ฝั่ง backend ส่วน Hosting เพียงอย่างเดียวไม่รัน Node/Python worker
 
 ยังไม่ได้ผูก Project ID ไว้ใน repository เพื่อให้เลือกปลายทางอย่างชัดเจนทุกครั้งด้วย `--project` การ deploy นี้เผยแพร่เว็บให้เปิดผ่าน URL ได้ทั่วไป ยังไม่มีระบบล็อกอิน
 
@@ -42,7 +42,7 @@ npm run deploy:firebase -- --project YOUR_PROJECT_ID
 1. Push ไฟล์โปรเจกต์นี้ขึ้น repository แล้วเลือก **Settings → Pages → Source → GitHub Actions**
 2. Workflow `.github/workflows/static.yml` จะตรวจ JavaScript, ทดสอบ packaging และสร้าง `_site` ให้อัตโนมัติ โดยเผยแพร่เฉพาะ HTML/CSS/JS ไม่รวม Python, server, environment หรือเอกสารผู้ใช้
 3. เปิด URL ที่หน้า **Actions → Deploy static content to Pages** หรือ **Settings → Pages** แสดงเมื่อ deploy สำเร็จ เช่น `https://ktppuz.github.io/srs-dev/`
-4. ถ้ายังไม่มี backend หน้าเว็บจะเปิดใช้บีบอัดภาพและสแกนเอกสาร ส่วนบีบอัดและรวม PDF จะแจ้งว่ายังไม่พร้อม ไม่ส่งคำขอไป API ที่ไม่มีอยู่บน Pages
+4. ถ้ายังไม่มี backend หน้าเว็บจะเปิดใช้บีบอัดภาพ สแกนเอกสาร และรวม PDF ในเบราว์เซอร์ ส่วนบีบอัด PDF จะแจ้งว่ายังไม่พร้อม ไม่ส่งคำขอไป API ที่ไม่มีอยู่บน Pages
 
 ### Backend สำหรับบีบอัดและรวม PDF
 
@@ -89,7 +89,8 @@ Container รันด้วย user ที่ไม่ใช่ root ใช้�
 
 - เลือกแท็บ **รวม PDF** เพิ่มเอกสารหลายไฟล์ในครั้งเดียวหรือเพิ่มทีหลัง ใช้ ↑ / ↓ จัดลำดับ และ × นำไฟล์ออก แล้วกดรวม PDF
 - รวม 2–20 ไฟล์ ไฟล์ละไม่เกิน 50 MiB รวมไม่เกิน 100 MiB และผลลัพธ์ไม่เกิน 500 หน้า
-- รวมหน้าโดยไม่ลดคุณภาพภาพ เก็บข้อความ เวกเตอร์ ลิงก์ทั่วไป annotations และ form fields พร้อมย้าย bookmarks ตามเลขหน้าใหม่ ไฟล์ชื่อซ้ำหรือไฟล์เดิมที่เลือกซ้ำยังคงแยกตามลำดับ
+- เมื่อ build แบบ static โดยไม่ตั้ง `API_BASE_URL` จะรวม PDF ด้วย pdf-lib 1.17.1 (MIT, เก็บไฟล์และ license ใน `vendor/`) ภายใน Web Worker ไฟล์ไม่ถูกอัปโหลด ยกเลิกแล้วหยุด worker ทันที คงข้อความ/เวกเตอร์/คุณภาพภาพ แต่ไม่คัดลอก bookmarks หรือไฟล์แนบ ฟอร์มทั่วไปจะถูก flatten เป็นเนื้อหาที่แก้ไขไม่ได้ และไม่รองรับ XFA
+- เมื่อมี backend จะรวมหน้าโดยไม่ลดคุณภาพภาพ เก็บข้อความ เวกเตอร์ ลิงก์ทั่วไป annotations และ form fields พร้อมย้าย bookmarks ตามเลขหน้าใหม่ ไฟล์ชื่อซ้ำหรือไฟล์เดิมที่เลือกซ้ำยังคงแยกตามลำดับ
 - ไม่รองรับ PDF เข้ารหัส/มีช่องลายเซ็นดิจิทัล และไม่คัดลอกไฟล์แนบหรือ metadata ระดับเอกสาร; named links บางประเภทอาจไม่ถูกคัดลอก
 - ผลลัพธ์ดาวน์โหลดเป็น `merged.pdf` มีลิงก์เปิดดูก่อนดาวน์โหลด เปลี่ยนลำดับหรือรายการไฟล์แล้วผลลัพธ์เก่าจะถูกล้างเพื่อป้องกันดาวน์โหลดผิดชุด
 - `POST /api/pdf/merge` รับ `multipart/form-data` โดยใช้ field `files` ซ้ำตามลำดับ พร้อม header `X-File-Compressor: 1` ผลลัพธ์เป็น PDF พร้อม `X-PDF-Pages` และ `X-PDF-Files`
@@ -108,6 +109,7 @@ Container รันด้วย user ที่ไม่ใช่ root ใช้�
 ```sh
 npm run check
 npm run test:pages
+npm run test:merge
 .venv/bin/python tests/test_pdf.py
 ```
 
